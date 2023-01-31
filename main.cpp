@@ -1,6 +1,6 @@
 #include <iostream>
+#include "memory_pool.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+  return 0;
 }

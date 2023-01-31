@@ -5,12 +5,20 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall")
 
+set(memory_pool_files
+        include/simple_segregated_storage.hpp
+        src/memory_pool.cpp)
+
 include_directories(include)
 
+add_library(memory_pool
+        ${memory_pool_files})
+
 add_executable(Programming_exercise_v1_4
-        main.cpp
-        src/simple_segregated_storage.cpp
-        src/memory_pool.cpp)
+        main.cpp)
+
+target_link_libraries(Programming_exercise_v1_4
+        memory_pool)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -25,10 +33,11 @@ enable_testing()
 
 add_executable(
         memory_pool_test
-        test/memory_pool_basic_test.cpp)
+        test/simple_segregated_storage_test.cpp)
 
 target_link_libraries(
         memory_pool_test
+        memory_pool
         GTest::gtest_main
 )
 

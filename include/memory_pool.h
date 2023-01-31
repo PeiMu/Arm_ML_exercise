@@ -8,7 +8,7 @@
 #define MEMORY_POOL_H
 
 #include "memory_block.h"
-#include "simple_segregated_storage.h"
+#include "simple_segregated_storage.hpp"
 
 namespace arm_exercise {
 	/*
@@ -20,8 +20,9 @@ namespace arm_exercise {
 		explicit MemoryPool(const SizeType& requested_size,
 												const SizeType& next_size,
 												const SizeType& max_size) :
-												list
+												list(0, 0) {}
 	 protected:
+		MemoryBlock<SizeType> list;
 
 	 private:
 

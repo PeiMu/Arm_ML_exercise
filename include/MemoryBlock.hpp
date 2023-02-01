@@ -10,67 +10,65 @@
 #include <numeric>
 
 namespace arm_exercise {
-	template <typename SizeType>
-	class MemoryBlock {
-	 public:
-		MemoryBlock(char * const ptr, const SizeType& size) : ptr(ptr), size(size) {}
-		MemoryBlock() : ptr(nullptr), size(0) {}
+class MemoryBlock {
+public:
+  MemoryBlock(void *const ptr, const std::size_t &size)
+      : ptr(ptr), size(size) {}
+  MemoryBlock() : ptr(nullptr), size(0) {}
 
-//	 protected:
-		char *&begin() {
-			return ptr;
-		}
+  /*
+   * A convenient API to get the begin node.
+   * */
+  void *&begin() { return ptr; }
 
-		char *end() {
-			return ptr_next_ptr();
-		}
+  void *end() { return ptr_next_ptr(); }
 
-		bool valid() {
-			return (begin() != 0);
-		}
+  /*
+   * Check if the ptr is empty.
+   * */
+  bool valid() { return (begin() != nullptr); }
 
-		void invalidate() {
-			begin() = nullptr;
-		}
+  /*
+   * Make the ptr invalid
+   * */
+  void invalidate() { begin() = nullptr; }
 
-		SizeType total_size() const {
-			return size;
-		}
+  std::size_t total_size() const { return size; }
 
-		SizeType element_size() const {
-			return static_cast<SizeType>(size - sizeof(SizeType)
-				- std::lcm(sizeof(SizeType), sizeof(void *)));
-		}
+  std::size_t element_size() const {
+    return static_cast<std::size_t>(
+        size - sizeof(std::size_t) -
+        std::lcm(sizeof(std::size_t), sizeof(void *)));
+  }
 
-		SizeType &next_size() {
-			return *(static_cast<SizeType *>(static_cast<void *>(ptr_next_size())));
-		}
+  std::size_t &next_size() {
+    return *(static_cast<std::size_t *>(static_cast<void *>(ptr_next_size())));
+  }
 
-		char *&next_ptr() {
-			return *(static_cast<char **>(static_cast<void *>(ptr_next_ptr())));
-		}
+  void *&next_ptr() {
+    return *(static_cast<void **>(static_cast<void *>(ptr_next_ptr())));
+  }
 
-		MemoryBlock next() {
-			return MemoryBlock<SizeType>(next_ptr(), next_size());
-		}
+  MemoryBlock next() { return {MemoryBlock(next_ptr(), next_size())}; }
 
-		void next(MemoryBlock arg) {
-			next_ptr() = arg.begin();
-			next_size() = arg.total_size();
-		}
+  void next(MemoryBlock arg) {
+    next_ptr() = arg.begin();
+    next_size() = arg.total_size();
+  }
 
-	 private:
-		char *ptr_next_size() {
-			return (ptr + size - sizeof(SizeType));
-		}
+private:
+  void *ptr_next_size() {
+    return (static_cast<char *>(ptr) + size - sizeof(std::size_t));
+  }
 
-		char *ptr_next_ptr() {
-			return (ptr_next_size() - std::lcm(sizeof(SizeType), sizeof(void *)));
-		}
+  void *ptr_next_ptr() {
+    return (static_cast<char *>(ptr_next_size()) -
+            std::lcm(sizeof(std::size_t), sizeof(void *)));
+  }
 
-		char *ptr;
-		SizeType size;
-	};
-}
+  void *ptr;
+  std::size_t size;
+};
+} // namespace arm_exercise
 
 #endif // MEMORY_BLOCK_H

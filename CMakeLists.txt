@@ -23,12 +23,20 @@ enable_testing()
 
 add_executable(
         memory_pool_test
-        test/SimpleSegregatedStorageTest.cpp
-        test/MemoryBlockTest.cpp
         test/MemoryPoolTest.cpp)
 
 target_link_libraries(
         memory_pool_test
+        GTest::gtest_main
+)
+
+add_executable(
+        simple_segregated_storage_test
+        test/SimpleSegregatedStorageTest.cpp
+)
+
+target_link_libraries(
+        simple_segregated_storage_test
         GTest::gtest_main
 )
 

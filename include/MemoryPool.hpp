@@ -32,11 +32,17 @@ public:
   ~MemoryPool() { purge_memory(); }
 
   element_type *construct() {
-    element_type *const ret = malloc_need_resize();
-    if (ret == nullptr)
-      return ret;
+    element_type *ret = memory_pool_malloc();
+		auto next_of_ret = next_of(ret);
     try {
-      new (ret) element_type();
+			/*
+			 * Maybe the easiest way to check if it has a default construction.
+			 * */
+	    if constexpr (std::is_default_constructible<element_type>::value)
+				new (ret) element_type();
+	    next_of(ret) = next_of_ret;
+	    if (ret == nullptr)
+		    return ret;
     } catch (...) {
       free(ret);
       throw;
@@ -45,8 +51,13 @@ public:
   }
 
   void destroy(element_type *const chunk) {
-    chunk->~element_type();
-    free(chunk);
+		/*
+		 * The example gives the virtual destructor...
+		 * */
+		if (!std::has_virtual_destructor<element_type>::value)
+			chunk->~element_type();
+
+		memory_pool_free(chunk);
   }
 
   /*
@@ -93,7 +104,7 @@ protected:
 private:
   /*
    * Get the size of size that will be allocated.
-   * Rounding up to the minimum required alignment.
+   * For alignment purpose, rounding up to the minimum required alignment.
    * */
   std::size_t alloc_size() const {
     std::size_t s = std::max(requested_size, min_alloc_size);
@@ -107,7 +118,7 @@ private:
 
   std::size_t max_chunks() const {
     std::size_t block_size =
-        std::lcm(sizeof(std::size_t), sizeof(void *)) + sizeof(std::size_t);
+        std::lcm(sizeof(element_type), sizeof(void *)) + sizeof(element_type);
     return (std::numeric_limits<std::size_t>::max() - block_size) /
            alloc_size();
   }
@@ -115,9 +126,9 @@ private:
   element_type *malloc_need_resize();
 
   const std::size_t min_alloc_size =
-      std::lcm(sizeof(void *), sizeof(std::size_t));
+      std::lcm(sizeof(void *), sizeof(element_type));
   const std::size_t min_align = std::lcm(std::alignment_of<void *>::value,
-                                         std::alignment_of<std::size_t>::value);
+                                         std::alignment_of<element_type>::value);
 };
 
 template <typename element_type>
@@ -125,7 +136,7 @@ element_type *MemoryPool<element_type>::malloc_need_resize() {
   std::size_t partition_size = alloc_size();
   auto block_size = static_cast<std::size_t>(
       chunk_num * partition_size +
-      std::lcm(sizeof(std::size_t), sizeof(void *)) + sizeof(std::size_t));
+      std::lcm(sizeof(element_type), sizeof(void *)) + sizeof(element_type));
   char *ptr = (char *)malloc(block_size);
   if (ptr == nullptr) {
     if (chunk_num > 4) {
@@ -133,7 +144,7 @@ element_type *MemoryPool<element_type>::malloc_need_resize() {
       partition_size = alloc_size();
       block_size = static_cast<std::size_t>(
           chunk_num * partition_size +
-          std::lcm(sizeof(std::size_t), sizeof(void *)) + sizeof(std::size_t));
+          std::lcm(sizeof(element_type), sizeof(void *)) + sizeof(element_type));
       ptr = (char *)malloc(block_size);
     }
     if (ptr == nullptr)
@@ -153,8 +164,23 @@ element_type *MemoryPool<element_type>::malloc_need_resize() {
   node.next(memory_blocks);
   memory_blocks = node;
 
-  return this->memory_pool_malloc();
+  return static_cast<element_type *>(SimpleSegregatedStorage::memory_pool_malloc());
 }
+
+template <typename element_type> void destroy_element(element_type &ele) {
+	if (!std::has_virtual_destructor<element_type>::value)
+		ele.~element_type();
+}
+
+/*
+ * Cannot use pseudo destructor call on an array type.
+ * So here we destroy each of element in array separately.
+ * */
+	template <typename element_type, std::size_t N> void destroy_element(element_type (&ele)[N]) {
+		for (auto i = N; i > 0; i--) {
+			destroy_element(ele[i]);
+		}
+	}
 
 template <typename element_type> bool MemoryPool<element_type>::purge_memory() {
   MemoryBlock iter = memory_blocks;
@@ -164,8 +190,19 @@ template <typename element_type> bool MemoryPool<element_type>::purge_memory() {
   /*
    * Iterate through all memory blocks
    * */
+	void *freed_iter = free_memory;
+	const size_t partition_size = alloc_size();
   do {
     auto next = iter.next();
+		for (char *i = static_cast<char *>(iter.begin()); i != iter.end(); i += partition_size) {
+			if (i == freed_iter) {
+				freed_iter = next_of(freed_iter);
+				continue;
+			}
+			if (freed_iter == nullptr)
+				break;
+			destroy_element(reinterpret_cast<element_type &>(i));
+		}
     free(iter.begin());
     iter = next;
   } while (iter.valid());

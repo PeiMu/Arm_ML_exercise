@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall")
 
-include_directories(include)
+include_directories(include
+        example)
 
 add_executable(Programming_exercise_v1_4
         example/Example.cpp)

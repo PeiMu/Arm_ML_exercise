@@ -19,21 +19,21 @@ namespace arm_exercise {
 		SimpleSegregatedStorage() : free_memory(nullptr) {}
 
 	 protected:
+		void add_block(void *const block, const SizeType& size, const SizeType& partition_size) {
+			free_memory = segregate(block, size, partition_size, free_memory);
+		}
+
+		virtual void *malloc();
+
+		virtual void free(void *chunk);
+
 		/*
 		 * Segregate block into chunks and merge it into free_memory
 		 * */
-		void add_block(void *block,
+		void segregate(void *block,
 		               const SizeType& total_size,
 		               const SizeType& partition_size,
 		               void *end);
-
-		void *malloc();
-
-		void free(void *chunk);
-
-		void *get_free_memory() const {
-			return free_memory;
-		}
 
 		void* &next_of(void *const ptr) {
 			return *(static_cast<void**>(ptr));
@@ -41,7 +41,10 @@ namespace arm_exercise {
 
 		void* find_prev(void *ptr);
 
-	 private:
+		bool empty() const {
+			return (free_memory == nullptr);
+		}
+
 		/*
 		 * The free list, that points to the first trunk.
 		 * Should be nullptr if the free list is empty.
@@ -50,9 +53,9 @@ namespace arm_exercise {
 	};
 
 	template<typename SizeType>
-	void SimpleSegregatedStorage<SizeType>::add_block(void *block,
-																										const SizeType& total_size,
-																										const SizeType& partition_size,
+	void SimpleSegregatedStorage<SizeType>::segregate(void *block,
+	                                                  const SizeType& total_size,
+	                                                  const SizeType& partition_size,
 	                                                  void *end) {
 		// get pointer to the last valid chunk
 		// last_chunk == block + partition_size * i

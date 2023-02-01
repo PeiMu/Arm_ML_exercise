@@ -1,6 +1,6 @@
 /*
  * @author: Pei Mu
- * @description: basic GTest of memory pool
+ * @description: basic GTest of simple segregated storage
  * @data: 30th Jan 2023
  * */
 
@@ -16,8 +16,8 @@ class SimpleSegregatedStorageTester :
 	void *test_add_block(void *block,
 	                    std::size_t total_size,
 	                    std::size_t partition_size) {
-		add_block(block, total_size, partition_size, nullptr);
-		return get_free_memory();
+		segregate(block, total_size, partition_size, nullptr);
+		return free_memory;
 	}
 
 	void *test_next_chunk(void *trunk) {
@@ -37,23 +37,11 @@ class SimpleSegregatedStorageTester :
 	}
 
 	void *test_get_free_memory() {
-		return get_free_memory();
+		return free_memory;
 	}
-
- private:
-//	void set_partition_size(const std::size_t size) {
-//	 if (allocated_blocks.empty())
-//		 total_size = size;
-//	 else
-//		 assert(total_size == size);
-// }
-
-	std::vector<std::pair<void *, std::size_t>> allocated_blocks;
-//  std::size_t total_size{};
-	std::set<void *> allocated_chunks;
 };
 
-TEST(BasicMemoryPoolTest, TestAddBlock) {
+TEST(SimpleSegregatedStorageTest, TestAddBlock) {
 	auto sss = SimpleSegregatedStorageTester();
 	const std::size_t block_size = BLOCK_SIZE;
 	const std::size_t partition_size = PARTITION_SIZE;
@@ -72,7 +60,7 @@ TEST(BasicMemoryPoolTest, TestAddBlock) {
 	}
 }
 
-TEST(BasicMemoryPoolTest, TestMallocFree) {
+TEST(SimpleSegregatedStorageTest, TestMallocFree) {
 	auto sss = SimpleSegregatedStorageTester();
 	const std::size_t block_size = BLOCK_SIZE;
 	const std::size_t partition_size = PARTITION_SIZE;

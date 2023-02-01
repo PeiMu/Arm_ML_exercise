@@ -28,6 +28,10 @@ namespace arm_exercise {
 			return (begin() != 0);
 		}
 
+		void invalidate() {
+			begin() = 0;
+		}
+
 		SizeType total_size() const {
 			return size;
 		}

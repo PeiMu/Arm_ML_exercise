@@ -5,7 +5,7 @@
  * */
 
 #include <gtest/gtest.h>
-#include "simple_segregated_storage.hpp"
+#include "SimpleSegregatedStorage.hpp"
 
 #define BLOCK_SIZE 1000
 #define PARTITION_SIZE 33
@@ -16,7 +16,7 @@ class SimpleSegregatedStorageTester :
 	void *test_add_block(void *block,
 	                    std::size_t total_size,
 	                    std::size_t partition_size) {
-		segregate(block, total_size, partition_size, nullptr);
+		add_block(block, total_size, partition_size);
 		return free_memory;
 	}
 
@@ -29,11 +29,11 @@ class SimpleSegregatedStorageTester :
 	}
 
 	void *test_malloc() {
-		return malloc();
+		return memory_pool_malloc();
 	}
 
 	void test_free(void *trunk) {
-		free(trunk);
+		memory_pool_free(trunk);
 	}
 
 	void *test_get_free_memory() {
@@ -67,17 +67,17 @@ TEST(SimpleSegregatedStorageTest, TestMallocFree) {
 	auto block = malloc(block_size);
 	sss.test_add_block(block, block_size, partition_size);
 
-	// test malloc
+	// test memory_pool_malloc
 	auto first_trunk = sss.test_malloc();
 	EXPECT_EQ(first_trunk, block);
 	auto second_trunk = sss.test_malloc();
 	EXPECT_EQ(second_trunk, static_cast<char *>(block) + partition_size);
 
-	// test free
+	// test memory_pool_free
 	sss.test_free(first_trunk);
 	EXPECT_EQ(sss.test_get_free_memory(), block);
 
-	// test malloc again
+	// test memory_pool_malloc again
 	auto third_trunk = sss.test_malloc();
 	EXPECT_EQ(third_trunk, block);
 	EXPECT_EQ(sss.test_next_chunk(third_trunk), static_cast<char *>(block) + partition_size*2);

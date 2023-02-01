@@ -8,7 +8,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall")
 include_directories(include)
 
 add_executable(Programming_exercise_v1_4
-        main.cpp)
+        example/Example.cpp)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -23,8 +23,9 @@ enable_testing()
 
 add_executable(
         memory_pool_test
-        test/simple_segregated_storage_test.cpp
-        test/memory_block_test.cpp)
+        test/SimpleSegregatedStorageTest.cpp
+        test/MemoryBlockTest.cpp
+        test/MemoryPoolTest.cpp)
 
 target_link_libraries(
         memory_pool_test

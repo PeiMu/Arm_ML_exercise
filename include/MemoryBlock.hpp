@@ -14,22 +14,23 @@ namespace arm_exercise {
 	class MemoryBlock {
 	 public:
 		MemoryBlock(char * const ptr, const SizeType& size) : ptr(ptr), size(size) {}
+		MemoryBlock() : ptr(nullptr), size(0) {}
 
-	 protected:
-		char * begin() {
+//	 protected:
+		char *&begin() {
 			return ptr;
 		}
 
-		char * end() {
+		char *end() {
 			return ptr_next_ptr();
 		}
 
-		bool valid() const {
+		bool valid() {
 			return (begin() != 0);
 		}
 
 		void invalidate() {
-			begin() = 0;
+			begin() = nullptr;
 		}
 
 		SizeType total_size() const {
@@ -41,29 +42,29 @@ namespace arm_exercise {
 				- std::lcm(sizeof(SizeType), sizeof(void *)));
 		}
 
-		SizeType &next_size() const {
+		SizeType &next_size() {
 			return *(static_cast<SizeType *>(static_cast<void *>(ptr_next_size())));
 		}
 
-		char* &next_ptr() const {
+		char *&next_ptr() {
 			return *(static_cast<char **>(static_cast<void *>(ptr_next_ptr())));
 		}
 
-		MemoryBlock next() const {
+		MemoryBlock next() {
 			return MemoryBlock<SizeType>(next_ptr(), next_size());
 		}
 
-		void next(const MemoryBlock &arg) const {
+		void next(MemoryBlock arg) {
 			next_ptr() = arg.begin();
 			next_size() = arg.total_size();
 		}
 
 	 private:
-		char *ptr_next_size() const {
+		char *ptr_next_size() {
 			return (ptr + size - sizeof(SizeType));
 		}
 
-		char *ptr_next_ptr() const {
+		char *ptr_next_ptr() {
 			return (ptr_next_size() - std::lcm(sizeof(SizeType), sizeof(void *)));
 		}
 

@@ -23,14 +23,14 @@ namespace arm_exercise {
 			free_memory = segregate(block, size, partition_size, free_memory);
 		}
 
-		virtual void *malloc();
+		virtual void *memory_pool_malloc();
 
-		virtual void free(void *chunk);
+		virtual void memory_pool_free(void *chunk);
 
 		/*
 		 * Segregate block into chunks and merge it into free_memory
 		 * */
-		void segregate(void *block,
+		void *segregate(void *block,
 		               const SizeType& total_size,
 		               const SizeType& partition_size,
 		               void *end);
@@ -41,19 +41,19 @@ namespace arm_exercise {
 
 		void* find_prev(void *ptr);
 
-		bool empty() const {
+		bool empty() {
 			return (free_memory == nullptr);
 		}
 
 		/*
 		 * The free list, that points to the first trunk.
-		 * Should be nullptr if the free list is empty.
+		 * Should be nullptr if the memory_pool_free list is empty.
 		 * */
 		void *free_memory;
 	};
 
 	template<typename SizeType>
-	void SimpleSegregatedStorage<SizeType>::segregate(void *block,
+	void *SimpleSegregatedStorage<SizeType>::segregate(void *block,
 	                                                  const SizeType& total_size,
 	                                                  const SizeType& partition_size,
 	                                                  void *end) {
@@ -67,8 +67,7 @@ namespace arm_exercise {
 
 		// cannot split into pieces
 		if (last_chunk == block) {
-			free_memory = block;
-			return;
+			return block;
 		}
 
 		// iterate backwards, building a singly-linked list of pointers
@@ -79,12 +78,11 @@ namespace arm_exercise {
 		// point the first pointer
 		next_of(block) = last_chunk;
 
-		// merge it into free_memory
-		free_memory = block;
+		return block;
 	}
 
 	template<typename SizeType>
-	void *SimpleSegregatedStorage<SizeType>::malloc() {
+	void *SimpleSegregatedStorage<SizeType>::memory_pool_malloc() {
 		void * const ret = free_memory;
 		// increase the "free_memory" pointer to point to the next chunk
 		free_memory = next_of(free_memory);
@@ -92,7 +90,7 @@ namespace arm_exercise {
 	}
 
 	template<typename SizeType>
-	void SimpleSegregatedStorage<SizeType>::free(void *chunk) {
+	void SimpleSegregatedStorage<SizeType>::memory_pool_free(void *chunk) {
 		next_of(chunk) = free_memory;
 		free_memory = chunk;
 	}

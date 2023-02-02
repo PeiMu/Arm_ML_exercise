@@ -39,12 +39,6 @@ protected:
   void memory_pool_free(void *chunk);
 
   /*
-   * Segregate block into chunks
-   * */
-  void *segregate(void *block, const std::size_t &total_size,
-                  const std::size_t &partition_size, void *end);
-
-  /*
    * Establish a link with the next node.
    * It's a very tricky idea to store the address content by pointed address.
    * [hint] A bug here for very small partition size (e.g. <= 5 bytes).
@@ -56,16 +50,23 @@ protected:
    * */
   void *find_prev(void *ptr);
 
+	/*
+   * The free list, that points to the first trunk.
+   * Should be nullptr if the memory_pool_free list is empty.
+   * */
+	void *free_memory;
+
+ private:
+	/*
+   * Segregate block into chunks
+   * */
+	void *segregate(void *block, const std::size_t &total_size,
+	                const std::size_t &partition_size, void *end);
+
   /*
    * Check if the memory list is empty.
    * */
   bool empty() { return (free_memory == nullptr); }
-
-  /*
-   * The free list, that points to the first trunk.
-   * Should be nullptr if the memory_pool_free list is empty.
-   * */
-  void *free_memory;
 };
 
 void *SimpleSegregatedStorage::segregate(void *block,

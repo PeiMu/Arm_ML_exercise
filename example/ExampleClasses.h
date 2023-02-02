@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+const int g_MaxNumberOfObjectsInPool = 1000;
+const int g_ChunkNum = 100;
+
 // (Note the code in this class is not meant to be a example of good code!)
 
 

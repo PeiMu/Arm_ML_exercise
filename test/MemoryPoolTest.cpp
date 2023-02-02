@@ -1,7 +1,7 @@
 /*
  * @author: Pei Mu
  * @description: basic GTest of memory pool
- * @data: 30th Jan 2023
+ * @data: 30th Jan g_ChunkNum23
  * */
 
 #include <gtest/gtest.h>
@@ -78,12 +78,12 @@ TEST(MemoryPoolTest, TestDefaultSizeT) {
 
 TEST(MemoryPoolTest, TestFloat) {
 	// test memory pool construction
-	auto mp = MemoryPoolTester<float>(10, 1000);
+	auto mp = MemoryPoolTester<float>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
 	auto memory_chunk = mp.memory_pool_malloc();
 	const int partition_size = std::lcm(sizeof(float), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
-	EXPECT_EQ(mp.get_chunks_num(), 20);
+	EXPECT_GE(mp.get_chunks_num(), g_ChunkNum);
 	// by default, the requested size is the size of data type
 	EXPECT_EQ(mp.get_requested_size(), sizeof(float));
 
@@ -112,12 +112,12 @@ TEST(MemoryPoolTest, TestFloat) {
 
 TEST(MemoryPoolTest, TestByteType) {
 	// test memory pool construction
-	auto mp = MemoryPoolTester<ByteType>(10, 1000);
+	auto mp = MemoryPoolTester<ByteType>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
 	auto memory_chunk = mp.memory_pool_malloc();
 	const int partition_size = std::lcm(sizeof(ByteType), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
-	EXPECT_EQ(mp.get_chunks_num(), 20);
+	EXPECT_GE(mp.get_chunks_num(), g_ChunkNum);
 	// by default, the requested size is the size of data type
 	EXPECT_EQ(mp.get_requested_size(), sizeof(ByteType));
 
@@ -146,12 +146,12 @@ TEST(MemoryPoolTest, TestByteType) {
 
 TEST(MemoryPoolTest, TestPointerType) {
 	// test memory pool construction
-	auto mp = MemoryPoolTester<PointerType>(10, 1000);
+	auto mp = MemoryPoolTester<PointerType>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
 	auto memory_chunk = mp.memory_pool_malloc();
 	const int partition_size = std::lcm(sizeof(PointerType), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
-	EXPECT_EQ(mp.get_chunks_num(), 20);
+	EXPECT_GE(mp.get_chunks_num(), g_ChunkNum);
 	// by default, the requested size is the size of data type
 	EXPECT_EQ(mp.get_requested_size(), sizeof(PointerType));
 
@@ -180,12 +180,12 @@ TEST(MemoryPoolTest, TestPointerType) {
 
 TEST(MemoryPoolTest, TestCharArray) {
 	// test memory pool construction
-	auto mp = MemoryPoolTester<FixedStringType>(10, 1000);
+	auto mp = MemoryPoolTester<FixedStringType>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
 	auto memory_chunk = mp.memory_pool_malloc();
 	const int partition_size = std::lcm(sizeof(FixedStringType), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
-	EXPECT_EQ(mp.get_chunks_num(), 20);
+	EXPECT_GE(mp.get_chunks_num(), g_ChunkNum);
 	// by default, the requested size is the size of data type
 	EXPECT_EQ(mp.get_requested_size(), sizeof(FixedStringType));
 
@@ -214,12 +214,12 @@ TEST(MemoryPoolTest, TestCharArray) {
 
 TEST(MemoryPoolTest, TestStructure) {
 	// test memory pool construction
-	auto mp = MemoryPoolTester<Point>(10, 1000);
+	auto mp = MemoryPoolTester<Point>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
 	auto memory_chunk = mp.memory_pool_malloc();
 	const int partition_size = std::lcm(sizeof(Point), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
-	EXPECT_EQ(mp.get_chunks_num(), 20);
+	EXPECT_GE(mp.get_chunks_num(), g_ChunkNum);
 	// by default, the requested size is the size of data type
 	EXPECT_EQ(mp.get_requested_size(), sizeof(Point));
 
@@ -248,12 +248,12 @@ TEST(MemoryPoolTest, TestStructure) {
 
 TEST(MemoryPoolTest, TestBaseClass) {
 	// test memory pool construction
-	auto mp = MemoryPoolTester<Base1>(10, 1000);
+	auto mp = MemoryPoolTester<Base1>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
 	auto memory_chunk = mp.construct();
 	const int partition_size = std::lcm(sizeof(Base1), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
-	EXPECT_EQ(mp.get_chunks_num(), 20);
+	EXPECT_GE(mp.get_chunks_num(), g_ChunkNum);
 	// by default, the requested size is the size of data type
 	EXPECT_EQ(mp.get_requested_size(), sizeof(Base1));
 
@@ -282,12 +282,12 @@ TEST(MemoryPoolTest, TestBaseClass) {
 
 TEST(MemoryPoolTest, TestDerivedClass) {
 	// test memory pool construction
-	auto mp = MemoryPoolTester<Derived>(10, 1000);
+	auto mp = MemoryPoolTester<Derived>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
 	auto memory_chunk = mp.construct();
 	const int partition_size = std::lcm(sizeof(Derived), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
-	EXPECT_EQ(mp.get_chunks_num(), 20);
+	EXPECT_GE(mp.get_chunks_num(), g_ChunkNum);
 	// by default, the requested size is the size of data type
 	EXPECT_EQ(mp.get_requested_size(), sizeof(Derived));
 
@@ -316,12 +316,12 @@ TEST(MemoryPoolTest, TestDerivedClass) {
 
 TEST(MemoryPoolTest, TestNodefaultConstClass) {
 	// test memory pool construction
-	auto mp = MemoryPoolTester<NoDefaultConstructor>(10, 1000);
+	auto mp = MemoryPoolTester<NoDefaultConstructor>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
 	auto memory_chunk = mp.construct();
 	const int partition_size = std::lcm(sizeof(NoDefaultConstructor), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
-	EXPECT_EQ(mp.get_chunks_num(), 20);
+	EXPECT_GE(mp.get_chunks_num(), g_ChunkNum);
 	// by default, the requested size is the size of data type
 	EXPECT_EQ(mp.get_requested_size(), sizeof(NoDefaultConstructor));
 

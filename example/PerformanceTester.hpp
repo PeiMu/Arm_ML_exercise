@@ -10,16 +10,16 @@
 #include "ExampleClasses.h"
 #include "MemoryPool.hpp"
 #include <vector>
+#include <unistd.h>
 
 typedef struct timespec timespec;
 
 timespec diff(timespec start, timespec end);
-timespec sum(timespec t1, timespec t2);
 void printTimeSpec(timespec t, const char* prefix);
 timespec tic( );
 timespec toc(timespec* start_time, const char* prefix );
 
-template <typename element_type>
+template <typename element_type, std::size_t N=3>
 class PerformanceTester {
  public:
 	PerformanceTester() = default;
@@ -39,14 +39,19 @@ class PerformanceTester {
 		}
 		auto mp_time = toc(&timer, "computation delay of memory pool");
 
-		std::vector<element_type *> ele_default_vec;
+		std::vector<void *> ele_default_vec;
 		for (std::size_t chunk_id = 0; chunk_id < g_ChunkNum; chunk_id++) {
-			auto memory = new element_type();
-			ele_default_vec.emplace_back(memory);
+			if constexpr (std::is_default_constructible<element_type>::value) {
+				auto memory = new element_type();
+				ele_default_vec.emplace_back(memory);
+			} else {
+				auto memory = new element_type(N);
+				ele_default_vec.emplace_back(memory);
+			}
 			// do something with the new allocated memory
 		}
 		for (auto &ele : ele_default_vec) {
-			delete ele;
+			arm_exercise::destroy_element(ele);
 		}
 		auto default_time = toc(&timer, "computation delay of system new/delete");
 		long time_diff = default_time.tv_nsec - mp_time.tv_nsec;

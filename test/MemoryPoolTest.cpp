@@ -45,7 +45,7 @@ class MemoryPoolTester :
 TEST(MemoryPoolTest, TestDefaultSizeT) {
 	// test memory pool construction
 	auto mp = MemoryPoolTester<std::size_t>();
-	auto memory_chunk = mp.memory_pool_malloc();
+	auto memory_chunk = mp.construct();
 	const int partition_size = sizeof(std::size_t);
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
@@ -54,19 +54,19 @@ TEST(MemoryPoolTest, TestDefaultSizeT) {
 	EXPECT_EQ(mp.get_requested_size(), partition_size);
 
 	// test malloc
-	auto second_chunk = mp.memory_pool_malloc();
+	auto second_chunk = mp.construct();
 	// check the address of next chunk
 	EXPECT_EQ(mp.get_next_chunk(memory_chunk), second_chunk);
 	void *address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size;
 	EXPECT_EQ(second_chunk, static_cast<std::size_t *>(address));
 
 	// test free
-	mp.memory_pool_free(memory_chunk);
+	mp.destroy(memory_chunk);
 	address = static_cast<void *>(second_chunk);
 	EXPECT_EQ(mp.get_memory_blocks().begin(), static_cast<char *>(address) - partition_size);
 
 	// malloc again
-	auto third_trunk = mp.memory_pool_malloc();
+	auto third_trunk = mp.construct();
 	EXPECT_EQ(third_trunk, mp.get_memory_blocks().begin());
 	address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size*2;
 	EXPECT_EQ(mp.get_next_chunk(third_trunk), static_cast<std::size_t *>(address));
@@ -79,7 +79,7 @@ TEST(MemoryPoolTest, TestDefaultSizeT) {
 TEST(MemoryPoolTest, TestFloat) {
 	// test memory pool construction
 	auto mp = MemoryPoolTester<float>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
-	auto memory_chunk = mp.memory_pool_malloc();
+	auto memory_chunk = mp.construct();
 	const int partition_size = std::lcm(sizeof(float), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
@@ -88,19 +88,19 @@ TEST(MemoryPoolTest, TestFloat) {
 	EXPECT_EQ(mp.get_requested_size(), sizeof(float));
 
 	// test malloc
-	auto second_chunk = mp.memory_pool_malloc();
+	auto second_chunk = mp.construct();
 	// check the address of next chunk
 	EXPECT_EQ(mp.get_next_chunk(memory_chunk), second_chunk);
 	void *address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size;
 	EXPECT_EQ(second_chunk, static_cast<float *>(address));
 
 	// test free
-	mp.memory_pool_free(memory_chunk);
+	mp.destroy(memory_chunk);
 	address = static_cast<void *>(second_chunk);
 	EXPECT_EQ(mp.get_memory_blocks().begin(), static_cast<char *>(address) - partition_size);
 
 	// malloc again
-	auto third_trunk = mp.memory_pool_malloc();
+	auto third_trunk = mp.construct();
 	EXPECT_EQ(third_trunk, mp.get_memory_blocks().begin());
 	address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size*2;
 	EXPECT_EQ(mp.get_next_chunk(third_trunk), static_cast<float *>(address));
@@ -113,7 +113,7 @@ TEST(MemoryPoolTest, TestFloat) {
 TEST(MemoryPoolTest, TestByteType) {
 	// test memory pool construction
 	auto mp = MemoryPoolTester<ByteType>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
-	auto memory_chunk = mp.memory_pool_malloc();
+	auto memory_chunk = mp.construct();
 	const int partition_size = std::lcm(sizeof(ByteType), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
@@ -122,19 +122,19 @@ TEST(MemoryPoolTest, TestByteType) {
 	EXPECT_EQ(mp.get_requested_size(), sizeof(ByteType));
 
 	// test malloc
-	auto second_chunk = mp.memory_pool_malloc();
+	auto second_chunk = mp.construct();
 	// check the address of next chunk
 	EXPECT_EQ(mp.get_next_chunk(memory_chunk), second_chunk);
 	void *address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size;
 	EXPECT_EQ(second_chunk, static_cast<ByteType *>(address));
 
 	// test free
-	mp.memory_pool_free(memory_chunk);
+	mp.destroy(memory_chunk);
 	address = static_cast<void *>(second_chunk);
 	EXPECT_EQ(mp.get_memory_blocks().begin(), static_cast<char *>(address) - partition_size);
 
 	// malloc again
-	auto third_trunk = mp.memory_pool_malloc();
+	auto third_trunk = mp.construct();
 	EXPECT_EQ(third_trunk, mp.get_memory_blocks().begin());
 	address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size*2;
 	EXPECT_EQ(mp.get_next_chunk(third_trunk), static_cast<ByteType *>(address));
@@ -147,7 +147,7 @@ TEST(MemoryPoolTest, TestByteType) {
 TEST(MemoryPoolTest, TestPointerType) {
 	// test memory pool construction
 	auto mp = MemoryPoolTester<PointerType>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
-	auto memory_chunk = mp.memory_pool_malloc();
+	auto memory_chunk = mp.construct();
 	const int partition_size = std::lcm(sizeof(PointerType), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
@@ -156,19 +156,19 @@ TEST(MemoryPoolTest, TestPointerType) {
 	EXPECT_EQ(mp.get_requested_size(), sizeof(PointerType));
 
 	// test malloc
-	auto second_chunk = mp.memory_pool_malloc();
+	auto second_chunk = mp.construct();
 	// check the address of next chunk
 	EXPECT_EQ(mp.get_next_chunk(memory_chunk), second_chunk);
 	void *address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size;
 	EXPECT_EQ(second_chunk, static_cast<PointerType *>(address));
 
 	// test free
-	mp.memory_pool_free(memory_chunk);
+	mp.destroy(memory_chunk);
 	address = static_cast<void *>(second_chunk);
 	EXPECT_EQ(mp.get_memory_blocks().begin(), static_cast<char *>(address) - partition_size);
 
 	// malloc again
-	auto third_trunk = mp.memory_pool_malloc();
+	auto third_trunk = mp.construct();
 	EXPECT_EQ(third_trunk, mp.get_memory_blocks().begin());
 	address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size*2;
 	EXPECT_EQ(mp.get_next_chunk(third_trunk), static_cast<PointerType *>(address));
@@ -181,7 +181,7 @@ TEST(MemoryPoolTest, TestPointerType) {
 TEST(MemoryPoolTest, TestCharArray) {
 	// test memory pool construction
 	auto mp = MemoryPoolTester<FixedStringType>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
-	auto memory_chunk = mp.memory_pool_malloc();
+	auto memory_chunk = mp.construct();
 	const int partition_size = std::lcm(sizeof(FixedStringType), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
@@ -190,19 +190,19 @@ TEST(MemoryPoolTest, TestCharArray) {
 	EXPECT_EQ(mp.get_requested_size(), sizeof(FixedStringType));
 
 	// test malloc
-	auto second_chunk = mp.memory_pool_malloc();
+	auto second_chunk = mp.construct();
 	// check the address of next chunk
 	EXPECT_EQ(mp.get_next_chunk(memory_chunk), second_chunk);
 	void *address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size;
 	EXPECT_EQ(second_chunk, static_cast<FixedStringType *>(address));
 
 	// test free
-	mp.memory_pool_free(memory_chunk);
+	mp.destroy(memory_chunk);
 	address = static_cast<void *>(second_chunk);
 	EXPECT_EQ(mp.get_memory_blocks().begin(), static_cast<char *>(address) - partition_size);
 
 	// malloc again
-	auto third_trunk = mp.memory_pool_malloc();
+	auto third_trunk = mp.construct();
 	EXPECT_EQ(third_trunk, mp.get_memory_blocks().begin());
 	address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size*2;
 	EXPECT_EQ(mp.get_next_chunk(third_trunk), static_cast<FixedStringType *>(address));
@@ -215,7 +215,7 @@ TEST(MemoryPoolTest, TestCharArray) {
 TEST(MemoryPoolTest, TestStructure) {
 	// test memory pool construction
 	auto mp = MemoryPoolTester<Point>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
-	auto memory_chunk = mp.memory_pool_malloc();
+	auto memory_chunk = mp.construct();
 	const int partition_size = std::lcm(sizeof(Point), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());
 	// for the temporary chunk size, it's the double size of the chunk number
@@ -224,19 +224,19 @@ TEST(MemoryPoolTest, TestStructure) {
 	EXPECT_EQ(mp.get_requested_size(), sizeof(Point));
 
 	// test malloc
-	auto second_chunk = mp.memory_pool_malloc();
+	auto second_chunk = mp.construct();
 	// check the address of next chunk
 	EXPECT_EQ(mp.get_next_chunk(memory_chunk), second_chunk);
 	void *address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size;
 	EXPECT_EQ(second_chunk, static_cast<Point *>(address));
 
 	// test free
-	mp.memory_pool_free(memory_chunk);
+	mp.destroy(memory_chunk);
 	address = static_cast<void *>(second_chunk);
 	EXPECT_EQ(mp.get_memory_blocks().begin(), static_cast<char *>(address) - partition_size);
 
 	// malloc again
-	auto third_trunk = mp.memory_pool_malloc();
+	auto third_trunk = mp.construct();
 	EXPECT_EQ(third_trunk, mp.get_memory_blocks().begin());
 	address = static_cast<char *>(mp.get_memory_blocks().begin()) + partition_size*2;
 	EXPECT_EQ(mp.get_next_chunk(third_trunk), static_cast<Point *>(address));

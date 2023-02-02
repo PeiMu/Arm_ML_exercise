@@ -13,8 +13,14 @@
 #include <limits>
 
 namespace arm_exercise {
+
+template <typename element_type> void destroy_element(element_type &ele);
+template <typename element_type, std::size_t N>
+void destroy_element(element_type (&ele)[N]);
+
 /*
- *
+ * The user interface of Memory Pool.
+ * Use template to be suitable for all kinds of data types.
  * */
 template <typename element_type>
 class MemoryPool : protected SimpleSegregatedStorage {
@@ -33,16 +39,16 @@ public:
 
   element_type *construct() {
     element_type *ret = memory_pool_malloc();
-		auto next_of_ret = next_of(ret);
+    auto next_of_ret = next_of(ret);
     try {
-			/*
-			 * Maybe the easiest way to check if it has a default construction.
-			 * */
-	    if constexpr (std::is_default_constructible<element_type>::value)
-				new (ret) element_type();
-	    next_of(ret) = next_of_ret;
-	    if (ret == nullptr)
-		    return ret;
+      /*
+       * Maybe the easiest way to check if it has a default construction.
+       * */
+      if constexpr (std::is_default_constructible<element_type>::value)
+        new (ret) element_type();
+      next_of(ret) = next_of_ret;
+      if (ret == nullptr)
+        return ret;
     } catch (...) {
       free(ret);
       throw;
@@ -51,32 +57,12 @@ public:
   }
 
   void destroy(element_type *const chunk) {
-		/*
-		 * The example gives the virtual destructor...
-		 * */
-		if (!std::has_virtual_destructor<element_type>::value)
-			chunk->~element_type();
+    /*
+     * The example gives the virtual destructor...
+     * */
+    destroy_element(*chunk);
 
-		memory_pool_free(chunk);
-  }
-
-  /*
-   * The interface of malloc.
-   * If it's the first time to malloc a trunk,
-   *  we need to construct the memory pool first.
-   * */
-  element_type *memory_pool_malloc() {
-    if (this->free_memory != nullptr)
-      return static_cast<element_type *>(
-          SimpleSegregatedStorage::memory_pool_malloc());
-    return malloc_need_resize();
-  }
-
-  /*
-   * The interface of free.
-   * */
-  void memory_pool_free(element_type *const chunk) {
-    SimpleSegregatedStorage::memory_pool_free(chunk);
+    memory_pool_free(chunk);
   }
 
 protected:
@@ -103,6 +89,25 @@ protected:
 
 private:
   /*
+   * The interface of malloc.
+   * If it's the first time to malloc a trunk,
+   *  we need to construct the memory pool first.
+   * */
+  element_type *memory_pool_malloc() {
+    if (this->free_memory != nullptr)
+      return static_cast<element_type *>(
+          SimpleSegregatedStorage::memory_pool_malloc());
+    return malloc_need_resize();
+  }
+
+  /*
+   * The interface of free.
+   * */
+  void memory_pool_free(element_type *const chunk) {
+    SimpleSegregatedStorage::memory_pool_free(chunk);
+  }
+
+  /*
    * Get the size of size that will be allocated.
    * For alignment purpose, rounding up to the minimum required alignment.
    * */
@@ -127,8 +132,8 @@ private:
 
   const std::size_t min_alloc_size =
       std::lcm(sizeof(void *), sizeof(element_type));
-  const std::size_t min_align = std::lcm(std::alignment_of<void *>::value,
-                                         std::alignment_of<element_type>::value);
+  const std::size_t min_align = std::lcm(
+      std::alignment_of<void *>::value, std::alignment_of<element_type>::value);
 };
 
 template <typename element_type>
@@ -144,7 +149,8 @@ element_type *MemoryPool<element_type>::malloc_need_resize() {
       partition_size = alloc_size();
       block_size = static_cast<std::size_t>(
           chunk_num * partition_size +
-          std::lcm(sizeof(element_type), sizeof(void *)) + sizeof(element_type));
+          std::lcm(sizeof(element_type), sizeof(void *)) +
+          sizeof(element_type));
       ptr = (char *)malloc(block_size);
     }
     if (ptr == nullptr)
@@ -164,23 +170,25 @@ element_type *MemoryPool<element_type>::malloc_need_resize() {
   node.next(memory_blocks);
   memory_blocks = node;
 
-  return static_cast<element_type *>(SimpleSegregatedStorage::memory_pool_malloc());
+  return static_cast<element_type *>(
+      SimpleSegregatedStorage::memory_pool_malloc());
 }
 
 template <typename element_type> void destroy_element(element_type &ele) {
-	if (!std::has_virtual_destructor<element_type>::value)
-		ele.~element_type();
+  if (!std::has_virtual_destructor<element_type>::value)
+    ele.~element_type();
 }
 
 /*
  * Cannot use pseudo destructor call on an array type.
  * So here we destroy each of element in array separately.
  * */
-	template <typename element_type, std::size_t N> void destroy_element(element_type (&ele)[N]) {
-		for (auto i = N; i > 0; i--) {
-			destroy_element(ele[i]);
-		}
-	}
+template <typename element_type, std::size_t N>
+void destroy_element(element_type (&ele)[N]) {
+  for (auto i = N; i > 0; i--) {
+    destroy_element(ele[i]);
+  }
+}
 
 template <typename element_type> bool MemoryPool<element_type>::purge_memory() {
   MemoryBlock iter = memory_blocks;
@@ -190,19 +198,20 @@ template <typename element_type> bool MemoryPool<element_type>::purge_memory() {
   /*
    * Iterate through all memory blocks
    * */
-	void *freed_iter = free_memory;
-	const size_t partition_size = alloc_size();
+  void *freed_iter = free_memory;
+  const size_t partition_size = alloc_size();
   do {
     auto next = iter.next();
-		for (char *i = static_cast<char *>(iter.begin()); i != iter.end(); i += partition_size) {
-			if (i == freed_iter) {
-				freed_iter = next_of(freed_iter);
-				continue;
-			}
-			if (freed_iter == nullptr)
-				break;
-			destroy_element(reinterpret_cast<element_type &>(i));
-		}
+    for (char *i = static_cast<char *>(iter.begin()); i != iter.end();
+         i += partition_size) {
+      if (i == freed_iter) {
+        freed_iter = next_of(freed_iter);
+        continue;
+      }
+      if (freed_iter == nullptr)
+        break;
+      destroy_element(reinterpret_cast<element_type &>(i));
+    }
     free(iter.begin());
     iter = next;
   } while (iter.valid());

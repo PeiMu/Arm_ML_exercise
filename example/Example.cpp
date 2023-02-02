@@ -36,33 +36,33 @@ timespec toc(timespec *start_time, const char *prefix) {
 }
 
 int main() {
-//	auto byte_type_test = PerformanceTester<ByteType>();
-//	byte_type_test.test();
-//
-//	// sleep for a while to avoid any kind of influences
-//	sleep(1);
-//	auto pointer_type_test = PerformanceTester<PointerType>();
-//	pointer_type_test.test();
-//
-//	sleep(1);
+	auto byte_type_test = PerformanceTester<ByteType>();
+	byte_type_test.test();
+
+	// sleep for a while to avoid any kind of influences
+	sleep(1);
+	auto pointer_type_test = PerformanceTester<PointerType>();
+	pointer_type_test.test();
+
+	sleep(1);
 	auto fixed_str_type_test = PerformanceTester<FixedStringType>();
 	fixed_str_type_test.test();
 
-//	sleep(1);
-//	auto struct_type_test = PerformanceTester<Point>();
-//	struct_type_test.test();
-//
-//	sleep(1);
-//	auto base_class_test = PerformanceTester<Base1>();
-//	base_class_test.test();
-//
-//	sleep(1);
-//	auto derived_class_test = PerformanceTester<Derived>();
-//	derived_class_test.test();
-//
-//	sleep(1);
-//	auto no_default_construct_test = PerformanceTester<NoDefaultConstructor>();
-//	no_default_construct_test.test();
+	sleep(1);
+	auto struct_type_test = PerformanceTester<Point>();
+	struct_type_test.test();
+
+	sleep(1);
+	auto base_class_test = PerformanceTester<Base1>();
+	base_class_test.test();
+
+	sleep(1);
+	auto derived_class_test = PerformanceTester<Derived>();
+	derived_class_test.test();
+
+	sleep(1);
+	auto no_default_construct_test = PerformanceTester<NoDefaultConstructor>();
+	no_default_construct_test.test();
 
 	return 0;
 }

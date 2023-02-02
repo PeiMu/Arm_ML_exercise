@@ -1,5 +1,4 @@
 #include "PerformanceTester.hpp"
-#include <iostream>
 
 /***************************************
  * Timer functions of the test framework
@@ -48,4 +47,11 @@ timespec toc(timespec *start_time, const char *prefix) {
 	return time_diff;
 }
 
-int main() { return 0; }
+int main() {
+	auto byte_type_test = PerformanceTester<ByteType>();
+	byte_type_test.test();
+
+	auto pointer_type_test = PerformanceTester<PointerType>();
+	pointer_type_test.test();
+	return 0;
+}

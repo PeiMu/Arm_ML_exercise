@@ -11,6 +11,7 @@
 #include "SimpleSegregatedStorage.hpp"
 #include <cassert>
 #include <limits>
+#include <iostream>
 
 namespace arm_exercise {
 
@@ -205,8 +206,13 @@ template <typename element_type> bool MemoryPool<element_type>::purge_memory() {
     for (char *i = static_cast<char *>(iter.begin()); i != iter.end();
          i += partition_size) {
       if (i == freed_iter) {
-        freed_iter = next_of(freed_iter);
-        continue;
+				auto next_node = next_of(freed_iter);
+				// all nodes in this link has been released.
+	      if (freed_iter > next_node)
+		      break;
+
+				freed_iter = next_node;
+				continue;
       }
       if (freed_iter == nullptr)
         break;

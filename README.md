@@ -1,4 +1,4 @@
-# ML_exercise
+# Memory Pool Exercise
 
 A memory pool design and implementation in C++ code.
 The algorithm is inspried by boost::SimpleSegregatedStorage.

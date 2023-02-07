@@ -11,7 +11,7 @@
 #define PARTITION_SIZE 33
 
 class SimpleSegregatedStorageTester :
-	public arm_exercise::SimpleSegregatedStorage {
+	public memory_pool::SimpleSegregatedStorage {
  public:
 	void *test_add_block(void *block,
 	                    std::size_t total_size,

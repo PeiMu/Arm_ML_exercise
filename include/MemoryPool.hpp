@@ -1,6 +1,6 @@
 /*
  * @author: Pei Mu
- * @description: Memory pool hpp implementation for ARM's interview exercise
+ * @description: Memory pool hpp implementation
  * @data: 30th Jan 2023
  * */
 
@@ -13,7 +13,7 @@
 #include <limits>
 #include <iostream>
 
-namespace arm_exercise {
+namespace memory_pool {
 
 template <typename element_type> void destroy_element(element_type &ele);
 template <typename element_type, std::size_t N>
@@ -226,6 +226,6 @@ template <typename element_type> bool MemoryPool<element_type>::purge_memory() {
   this->free_memory = nullptr;
   return true;
 }
-} // namespace arm_exercise
+} // namespace memory_pool
 
 #endif // MEMORY_POOL_H

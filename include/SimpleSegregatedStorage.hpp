@@ -9,7 +9,7 @@
 
 #include <cassert>
 
-namespace arm_exercise {
+namespace memory_pool {
 /*
  * Using the simple-segregated storage algorithm from boost.
  * Ref:
@@ -123,6 +123,6 @@ void *SimpleSegregatedStorage::find_prev(void *ptr) {
     iter = next_of(iter);
   }
 }
-} // namespace arm_exercise
+} // namespace memory_pool
 
 #endif // SIMPLE_SEGREGATED_STORAGE_H

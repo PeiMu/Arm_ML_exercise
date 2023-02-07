@@ -10,14 +10,14 @@
 
 template <typename element_type>
 class MemoryPoolTester :
-	public arm_exercise::MemoryPool<element_type> {
+	public memory_pool::MemoryPool<element_type> {
  public:
 	explicit MemoryPoolTester(std::size_t chunks_num_val = 32,
 	                          std::size_t max_chunks_val = 0) :
-														arm_exercise::MemoryPool<element_type>(chunks_num_val,
-																															 max_chunks_val) {}
+		memory_pool::MemoryPool<element_type>(chunks_num_val,
+		                                      max_chunks_val) {}
 
-	arm_exercise::MemoryBlock get_memory_blocks() {
+	memory_pool::MemoryBlock get_memory_blocks() {
 		return this->memory_blocks;
 	}
 

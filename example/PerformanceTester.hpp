@@ -28,7 +28,7 @@ class PerformanceTester {
 	void test() {
 		std::vector<element_type *> ele_mp_vec;
 		timespec timer = tic();
-		auto mp = arm_exercise::MemoryPool<element_type>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
+		auto mp = memory_pool::MemoryPool<element_type>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
 		for (std::size_t chunk_id = 0; chunk_id < g_ChunkNum; chunk_id++) {
 			auto memory_chunk = mp.construct();
 			ele_mp_vec.emplace_back(memory_chunk);
@@ -51,7 +51,7 @@ class PerformanceTester {
 			// do something with the new allocated memory
 		}
 		for (auto &ele : ele_default_vec) {
-			arm_exercise::destroy_element(ele);
+			memory_pool::destroy_element(ele);
 		}
 		auto default_time = toc(&timer, "computation delay of system new/delete");
 		long time_diff = default_time.tv_nsec - mp_time.tv_nsec;

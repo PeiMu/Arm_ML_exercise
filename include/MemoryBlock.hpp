@@ -9,7 +9,7 @@
 
 #include <numeric>
 
-namespace arm_exercise {
+namespace memory_pool {
 class MemoryBlock {
 public:
   MemoryBlock(void *const ptr, const std::size_t &size)
@@ -69,6 +69,6 @@ private:
   void *ptr;
   std::size_t size;
 };
-} // namespace arm_exercise
+} // namespace memory_pool
 
 #endif // MEMORY_BLOCK_H

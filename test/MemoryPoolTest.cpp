@@ -316,7 +316,11 @@ TEST(MemoryPoolTest, TestDerivedClass) {
 
 TEST(MemoryPoolTest, TestNodefaultConstClass) {
 	// test memory pool construction
+
+	auto test = MemoryPoolTester<NoDefaultConstructor>(...);
+
 	auto mp = MemoryPoolTester<NoDefaultConstructor>(g_ChunkNum, g_MaxNumberOfObjectsInPool);
+	mp.allocate(2);
 	auto memory_chunk = mp.construct();
 	const int partition_size = std::lcm(sizeof(NoDefaultConstructor), sizeof(void *));
 	EXPECT_EQ(memory_chunk, mp.get_memory_blocks().begin());

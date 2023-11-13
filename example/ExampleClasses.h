@@ -81,5 +81,11 @@ private:
 	int number;
 };
 
+class TestClass
+{
+ public:
+	TestClass(int num1, int num2, int num3)
+};
+
 
 #endif //EXAMPLE_CLASSES_H
